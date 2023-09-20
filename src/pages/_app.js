@@ -1,11 +1,14 @@
+import { ProviderAuth } from "../hooks/useAuth";
 import "../app/globals.css";
 import MainLayput from "../layout/MainLayout";
 
 function MyApp({ Component, pageProps }) {
   return (
-    <MainLayput>
-      <Component {...pageProps} />;
-    </MainLayput>
+    <ProviderAuth>
+      <MainLayput>
+        <Component {...pageProps} />;
+      </MainLayput>
+    </ProviderAuth>
   );
 }
 
