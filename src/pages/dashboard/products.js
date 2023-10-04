@@ -1,14 +1,44 @@
-import { Fragment, useState } from 'react';
-import { PlusIcon } from '@heroicons/react/solid';
+import { useEffect, useState } from 'react';
+import { PlusIcon, XCircleIcon } from '@heroicons/react/solid';
 import Modal from '../../common/Modal';
 import FormProduct from '../../components/FormProducts';
+import axios from 'axios';
+import endPoints from '../../services/api';
+import Alert from '../../common/Alert';
+import useAlert from '../../hooks/useAlert';
+import { deleteProduct } from '../../services/api/product';
 
-export default function products() {
+export default function Products() {
   const [open, setOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const { alert, setAlert, toggleAlert } = useAlert();
+
+  useEffect(() => {
+    async function getProdcts() {
+      const response = await axios.get(endPoints.products.allProducts);
+      setProducts(response.data);
+    }
+    try {
+      getProdcts();
+    } catch (error) {
+      console.log(error);
+    }
+  }, [alert]);
+
+  const handleDelete = (id) => {
+    deleteProduct(id).then(() => {
+      setAlert({
+        active: true,
+        message: 'Delete product successfully',
+        type: 'success',
+        autoClose: true,
+      });
+    });
+  };
 
   return (
     <>
+      <Alert alert={alert} handleClose={toggleAlert} />
       <div className="lg:flex lg:items-center lg:justify-between mb-8">
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">List of Products</h2>
@@ -80,9 +110,7 @@ export default function products() {
                         </a>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="/edit" className="text-indigo-600 hover:text-indigo-900">
-                          Delete
-                        </a>
+                        <XCircleIcon className="flex-shrink-0 h-6 w-6 text-gray-400 cursor-pointer" aria-hidden="true" onClick={() => handleDelete(product.id)} />
                       </td>
                     </tr>
                   ))}
@@ -93,7 +121,7 @@ export default function products() {
         </div>
       </div>
       <Modal open={open} setOpen={setOpen}>
-        <FormProduct />
+        <FormProduct setOpen={setOpen} setAlert={setAlert} />
       </Modal>
     </>
   );
